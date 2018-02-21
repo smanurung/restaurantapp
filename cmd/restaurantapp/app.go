@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -10,6 +9,7 @@ import (
 )
 
 func main() {
+	port := "8080"
 
 	m, err := r.NewModule(r.DefaultInitSample)
 	if err != nil {
@@ -21,7 +21,6 @@ func main() {
 	http.HandleFunc("/restaurant", m.HandleGetInfo())
 	http.HandleFunc("/reserve", reservation.HandleReserve(m))
 
-	port := "8080"
-	fmt.Println("listening to port", port)
-	http.ListenAndServe(":"+port, nil)
+	log.Println("listening to port", port)
+	log.Println(http.ListenAndServe(":"+port, nil))
 }

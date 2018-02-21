@@ -6,7 +6,8 @@ import (
 	"strconv"
 )
 
-// HandleGetList
+// HandleGetList handles request to list all restaurants within certain distance from the client.
+// Restaurants returned are sorted by rating.
 func (m *Module) HandleGetList() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -24,7 +25,7 @@ func (m *Module) HandleGetList() http.HandlerFunc {
 
 		d, err := strconv.Atoi(r.FormValue("distance"))
 		if err != nil {
-			d = 5
+			d = 5 // default value for distance here is 5 (km)
 		}
 
 		rs := m.GetWithDistance(Point{flat, flong}, d)
@@ -40,7 +41,7 @@ func (m *Module) HandleGetList() http.HandlerFunc {
 	}
 }
 
-// HandleGetInfo
+// HandleGetInfo handles request to list information on specific restaurant given restaurantID
 func (m *Module) HandleGetInfo() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.Atoi(r.FormValue("id"))

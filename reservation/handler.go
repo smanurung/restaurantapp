@@ -10,14 +10,15 @@ import (
 	"github.com/sonnythehottest/restaurantapp/restaurant"
 )
 
-// HandleReserve receives http request from client with these parameters:
+// HandleReserve receives http request from client to reserve place at a restaurant,
+// parameters are:
 //   - restaurantID
 //   - date (format: yyyymmddThh)
+// In this version, it's assumed that a restaurant can only have 1 place at each hour.
 //
-// example http request:
-//   curl '<host>:8080/reserve?restaurantID=1&time=20180201T02'
+// Example request:
+//   curl '<host>:<port>/reserve?restaurantID=1&time=20180201T02'
 func HandleReserve(m *restaurant.Module) http.HandlerFunc {
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		rsid, err := strconv.Atoi(r.FormValue("restaurantID"))
 		if err != nil {
@@ -37,12 +38,7 @@ func HandleReserve(m *restaurant.Module) http.HandlerFunc {
 			return
 		}
 
-		err = rs.Reserve(BasicReservation{
-			ID:                uint(time.Now().UnixNano()), // simulate uniquely generated number
-			RestaurantID:      uint(rsid),
-			Time:              t,
-			TimexRestaurantID: fmt.Sprintf("%s%d", t, rsid),
-		})
+		err = rs.Reserve(NewBasicReservation(uint(time.Now().UnixNano()), uint(rsid), t, fmt.Sprintf("%s%d", t, rsid)))
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
