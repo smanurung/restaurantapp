@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	m, err := r.NewModule()
+	m, err := r.NewModule(r.DefaultInitSample)
 	if err != nil {
 		log.Fatalln("failed to init restaurant module")
 	}

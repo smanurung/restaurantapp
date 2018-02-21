@@ -10,15 +10,11 @@ import (
 	"github.com/hashicorp/go-memdb"
 )
 
+// InitSampleFunc
+type InitSampleFunc func(*memdb.MemDB, int) (*list.List, map[int]*list.Element)
+
 // NewModule
-func NewModule() (*Module, error) {
-
-	// initialize pre-defined restaurants data for the program
-
-	rand.Seed(time.Now().UnixNano())
-	l := list.New()
-	m := make(map[int]*list.Element)
-
+func NewModule(isf InitSampleFunc) (*Module, error) {
 	dbSchema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
 			"reservation": &memdb.TableSchema{
@@ -44,10 +40,25 @@ func NewModule() (*Module, error) {
 		return nil, fmt.Errorf("failed to create memdb")
 	}
 
-	n := 300 // number of restaurant samples
-	for i := 0; i < n; i++ {
+	l, m := isf(memDB, 300) // initialize 300 dummy restaurants
+
+	return &Module{
+		l:     l,
+		m:     m,
+		memDB: memDB,
+	}, nil
+}
+
+// DefaultInitSample
+func DefaultInitSample(mdb *memdb.MemDB, num int) (*list.List, map[int]*list.Element) {
+
+	l := list.New()
+	m := make(map[int]*list.Element)
+	rand.Seed(time.Now().UnixNano())
+
+	for i := 0; i < num; i++ {
 		r := R{
-			ID:   rand.Intn(n),
+			ID:   rand.Intn(num),
 			Name: fmt.Sprintf("restaurant sample #%d", i),
 			CuisineType: map[int]string{
 				0: "Asian",
@@ -62,17 +73,13 @@ func NewModule() (*Module, error) {
 				2: Bad,
 			}[i/100],
 			Position:      Point{i, i},
-			reservationDB: memDB,
+			reservationDB: mdb,
 		}
 
 		e := l.PushBack(r)
 		m[r.ID] = e
 	}
-
-	return &Module{
-		l: l,
-		m: m,
-	}, nil
+	return l, m
 }
 
 // GetWithDistance compares the distance between `from` and all points in restaurant list,

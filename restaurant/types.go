@@ -17,8 +17,9 @@ type Point struct {
 //
 // l is doubly linked list. The list is sorted by rating
 type Module struct {
-	l *list.List
-	m map[int]*list.Element
+	l     *list.List
+	m     map[int]*list.Element
+	memDB *memdb.MemDB
 }
 
 // RatingType
